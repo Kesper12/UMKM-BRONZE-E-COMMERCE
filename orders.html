@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | BRONZE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .orders-container {
+            max-width: 1000px;
+            margin: 6rem auto 2rem;
+            padding: 2rem;
+            min-height: 70vh;
+        }
+        .order-card {
+            background: #151515;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-card h4 { margin-bottom: 0.5rem; color: var(--bronze); }
+        .order-card p { color: var(--text-secondary); font-size: 0.9rem; }
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" style="background: rgba(10, 10, 10, 0.95);">
+        <a href="index.html" class="nav-brand">
+            <img src="logo.png" alt="BRONZE Logo" class="nav-logo">
+        </a>
+        <div class="nav-actions">
+            <a href="index.html" style="color:white; text-decoration:none;">Belanja Lagi</a>
+        </div>
+    </nav>
+
+    <div class="orders-container">
+        <div class="section-header">
+            <h2>ORDER HISTORY</h2>
+            <div class="divider"></div>
+        </div>
+        <div id="ordersList">
+            <!-- Orders injected via JS -->
+            <p style="text-align: center; color: var(--text-secondary);">Memuat data...</p>
+        </div>
+    </div>
+
+    <script>
+        const formatIDR = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+
+        const loadOrders = async () => {
+            const token = localStorage.getItem('bronze_token');
+            if(!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const container = document.getElementById('ordersList');
+                container.innerHTML = '';
+
+                if(data.length === 0) {
+                    container.innerHTML = '<p style="text-align: center;">Belum ada pesanan.</p>';
+                    return;
+                }
+
+                data.forEach(order => {
+                    const div = document.createElement('div');
+                    div.className = 'order-card fade-in-section is-visible';
+                    div.innerHTML = `
+                        <div>
+                            <h4>Order ID: ${order.midtrans_order_id || order.id}</h4>
+                            <p>Tanggal: ${new Date(order.created_at).toLocaleString('id-ID')}</p>
+                            <p>Total: ${formatIDR(order.total_amount)} (termasuk ongkir ${formatIDR(order.shipping_cost)})</p>
+                        </div>
+                        <div>
+                            <span class="status-badge" style="color: ${order.status === 'pending' ? 'orange' : 'lightgreen'}">
+                                ${order.status.toUpperCase()}
+                            </span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch(e) {
+                document.getElementById('ordersList').innerHTML = '<p>Gagal memuat pesanan.</p>';
+            }
+        };
+
+        loadOrders();
+    </script>
+</body>
+</html>

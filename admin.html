@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | BRONZE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bronze: #b8860b;
+            --bronze-light: #daa520;
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --surface2: #1a1a1a;
+            --border: rgba(255,255,255,0.07);
+            --text: #f0f0f0;
+            --text-muted: #888;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 1.5rem 0; position: fixed; height: 100vh; z-index: 10;
+        }
+        .sidebar-brand { padding: 0 1.5rem 2rem; border-bottom: 1px solid var(--border); }
+        .sidebar-brand .logo-text { font-family: 'Bebas Neue'; font-size: 1.8rem; color: var(--bronze-light); letter-spacing: 3px; }
+        .sidebar-brand .role-badge { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+        .sidebar-nav { padding: 1.5rem 0; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.5rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; border-left: 3px solid transparent; font-size: 0.95rem; }
+        .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+        .nav-item.active { color: var(--bronze-light); border-left-color: var(--bronze); background: rgba(184,134,11,0.08); }
+        .nav-item i { font-size: 1.2rem; }
+        .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border); }
+        .btn-logout { width: 100%; padding: 0.75rem; background: transparent; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; border-radius: 6px; font-family: 'Outfit'; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: 0.2s; }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* Main */
+        .main { margin-left: 240px; flex: 1; padding: 2rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-family: 'Bebas Neue'; font-size: 2.5rem; color: var(--bronze-light); letter-spacing: 2px; }
+        .page-header p { color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2.5rem; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .stat-card.gold::before { background: linear-gradient(90deg, var(--bronze), var(--bronze-light)); }
+        .stat-card.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .stat-card.green::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; }
+        .stat-value { font-family: 'Bebas Neue'; font-size: 2.5rem; line-height: 1; }
+        .stat-icon { position: absolute; right: 1.25rem; top: 1.25rem; font-size: 2rem; opacity: 0.15; }
+
+        /* Tabs */
+        .tab { display: none; }
+        .tab.active { display: block; }
+
+        /* Card */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .card-header h3 { font-size: 1rem; font-weight: 600; }
+        .card-body { padding: 0; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 0.85rem 1.25rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); }
+        td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .product-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+        .product-thumb-placeholder { width: 48px; height: 48px; background: var(--surface2); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+
+        /* Status Badge */
+        .badge { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-pending { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .badge-success { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .badge-dikirim { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        .badge-dibatalkan { background: rgba(239,68,68,0.15); color: #f87171; }
+        .badge-selesai { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 6px; font-family: 'Outfit'; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; border: none; font-weight: 500; }
+        .btn-primary { background: linear-gradient(135deg, var(--bronze), var(--bronze-light)); color: #000; }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-sm { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+        .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+        .btn-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+        .btn-danger:hover { background: rgba(239,68,68,0.2); }
+        .btn-edit { background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+        .btn-edit:hover { background: rgba(59,130,246,0.2); }
+
+        /* Status Select */
+        .status-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.6rem; border-radius: 6px; font-family: 'Outfit'; font-size: 0.82rem; cursor: pointer; }
+        .status-select:focus { outline: none; border-color: var(--bronze); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; width: 100%; max-width: 520px; transform: scale(0.95); transition: transform 0.2s; }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; }
+        .modal-header h3 { font-family: 'Bebas Neue'; font-size: 1.75rem; color: var(--bronze-light); letter-spacing: 1px; }
+        .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.85rem 1rem; background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); border-radius: 6px; font-family: 'Outfit'; font-size: 0.9rem;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--bronze); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.75rem; }
+
+        /* Search */
+        .search-input { padding: 0.6rem 1rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: 'Outfit'; font-size: 0.9rem; width: 240px; }
+        .search-input:focus { outline: none; border-color: var(--bronze); }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast { padding: 1rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; animation: slideIn 0.3s ease; }
+        .toast-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
+        .toast-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-brand .logo-text, .sidebar-brand .role-badge, .nav-item span, .sidebar-footer .btn-logout span { display: none; }
+            .main { margin-left: 60px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="logo-text">BRONZE</div>
+        <div class="role-badge">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="switchTab('dashboard')">
+            <i class="ph ph-squares-four"></i><span>Dashboard</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('products')">
+            <i class="ph ph-t-shirt"></i><span>Produk</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('orders')">
+            <i class="ph ph-package"></i><span>Pesanan</span>
+        </div>
+        <div class="nav-item" onclick="window.open('index.html', '_blank')">
+            <i class="ph ph-storefront"></i><span>Lihat Toko</span>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">
+            <i class="ph ph-sign-out"></i><span>Logout</span>
+        </button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="main">
+
+    <!-- Dashboard Tab -->
+    <div class="tab active" id="tab-dashboard">
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p id="welcomeMsg">Selamat datang, Admin</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card gold">
+                <div class="stat-label">Total Pelanggan</div>
+                <div class="stat-value" id="statUsers">-</div>
+                <i class="ph ph-users stat-icon"></i>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">Total Produk</div>
+                <div class="stat-value" id="statProducts">-</div>
+                <i class="ph ph-t-shirt stat-icon"></i>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">Total Pesanan</div>
+                <div class="stat-value" id="statOrders">-</div>
+                <i class="ph ph-package stat-icon"></i>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-label">Revenue (Success)</div>
+                <div class="stat-value" id="statRevenue" style="font-size: 1.6rem;">-</div>
+                <i class="ph ph-currency-circle-dollar stat-icon"></i>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>10 Pesanan Terbaru</h3></div>
+            <div class="card-body"><table><thead><tr><th>Order ID</th><th>Pelanggan</th><th>Total</th><th>Ongkir</th><th>Status</th><th>Tanggal</th></tr></thead><tbody id="recentOrders"><tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding: 2rem;">Memuat data...</td></tr></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div class="tab" id="tab-products">
+        <div class="page-header">
+            <h1>Manajemen Produk</h1>
+            <p>Tambah, edit, atau hapus produk dari toko.</p>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>Daftar Produk (<span id="productCount">0</span>)</h3>
+                <div style="display:flex; gap: 0.75rem;">
+                    <input type="text" class="search-input" id="productSearch" placeholder="Cari produk..." oninput="filterProductTable()">
+                    <button class="btn btn-primary" onclick="openProductModal()"><i class="ph ph-plus"></i> Tambah Produk</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead><tr><th>Gambar</th><th>Nama Produk</th><th>Kategori</th><th>Harga</th><th>Berat (g)</th><th>Aksi</th></tr></thead>
+                    <tbody id="productsTableBody"><tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding: 2rem;">Memuat...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="tab" id="tab-orders">
+        <div class="page-header">
+            <h1>Manajemen Pesanan</h1>
+            <p>Pantau dan update status pengiriman semua pesanan.</p>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>Semua Pesanan (<span id="orderCount">0</span>)</h3>
+                <input type="text" class="search-input" id="orderSearch" placeholder="Cari nama / email..." oninput="filterOrderTable()">
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead><tr><th>Order ID</th><th>Pelanggan</th><th>Total</th><th>Ongkir</th><th>Status</th><th>Tanggal</th><th>Update Status</th></tr></thead>
+                    <tbody id="ordersTableBody"><tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding: 2rem;">Memuat...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">TAMBAH PRODUK</h3>
+            <button class="modal-close" onclick="closeProductModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="productForm" onsubmit="submitProduct(event)">
+            <input type="hidden" id="productId">
+            <div class="form-group"><label>Nama Produk *</label><input type="text" id="pName" required></div>
+            <div class="form-row">
+                <div class="form-group"><label>Harga (Rp) *</label><input type="number" id="pPrice" required min="0"></div>
+                <div class="form-group"><label>Berat (gram)</label><input type="number" id="pWeight" value="500" min="1"></div>
+            </div>
+            <div class="form-group">
+                <label>Kategori *</label>
+                <select id="pCategory" required>
+                    <option value="">Pilih Kategori</option>
+                    <option value="Baju">Baju</option>
+                    <option value="Celana">Celana</option>
+                    <option value="Dompet">Dompet</option>
+                    <option value="Topi">Topi</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+            <div class="form-group"><label>URL Gambar Utama</label><input type="url" id="pImage" placeholder="https://..."></div>
+            <div class="form-group"><label>URL Gambar Hover (opsional)</label><input type="url" id="pHoverImage" placeholder="https://..."></div>
+            <div class="form-group"><label>Deskripsi Produk</label><textarea id="pDesc" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeProductModal()">Batal</button>
+                <button type="submit" class="btn btn-primary" id="submitProductBtn">Simpan Produk</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>

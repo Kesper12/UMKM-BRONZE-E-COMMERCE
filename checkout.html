@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | BRONZE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Midtrans Snap JS -->
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-YOUR_CLIENT_KEY"></script>
+    <style>
+        .checkout-container {
+            max-width: 1000px;
+            margin: 6rem auto 2rem;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+        }
+        .checkout-section {
+            background: #151515;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .form-group select, .form-group input {
+            width: 100%; padding: 1rem; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-primary);
+            border-radius: 4px; font-family: inherit;
+        }
+        .summary-item {
+            display: flex; justify-content: space-between; margin-bottom: 1rem;
+            padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .total-row {
+            display: flex; justify-content: space-between; font-size: 1.25rem;
+            font-weight: 600; color: var(--bronze); margin-top: 1rem;
+        }
+        #orderItems { margin-bottom: 2rem; }
+        
+        @media (max-width: 768px) {
+            .checkout-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" style="background: rgba(10, 10, 10, 0.95);">
+        <a href="index.html" class="nav-brand">
+            <img src="logo.png" alt="BRONZE Logo" class="nav-logo">
+        </a>
+    </nav>
+
+    <div class="checkout-container">
+        <!-- Shipping Form -->
+        <div class="checkout-section">
+            <h2 class="bronze-text" style="margin-bottom: 2rem;">PENGIRIMAN</h2>
+            <div class="form-group">
+                <label>Provinsi</label>
+                <select id="provinceSelect">
+                    <option value="">Pilih Provinsi</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kota/Kabupaten</label>
+                <select id="citySelect" disabled>
+                    <option value="">Pilih Kota</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kurir</label>
+                <select id="courierSelect">
+                    <option value="jne">JNE</option>
+                    <option value="pos">POS Indonesia</option>
+                    <option value="tiki">TIKI</option>
+                </select>
+            </div>
+            <button id="calculateShippingBtn" class="btn-primary" style="width:100%; margin-top:1rem;">Cek Ongkir</button>
+            
+            <div id="shippingOptions" style="margin-top: 2rem; display: none;">
+                <h3 style="margin-bottom: 1rem;">Pilih Layanan:</h3>
+                <div id="servicesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="checkout-section">
+            <h2 class="bronze-text" style="margin-bottom: 2rem;">RINGKASAN ORDER</h2>
+            <div id="orderItems">
+                <!-- Items injected here -->
+            </div>
+            <div class="summary-item">
+                <span>Subtotal</span>
+                <span id="subtotalDisplay">Rp 0</span>
+            </div>
+            <div class="summary-item">
+                <span>Ongkos Kirim</span>
+                <span id="shippingCostDisplay">Rp 0</span>
+            </div>
+            <div class="total-row">
+                <span>TOTAL</span>
+                <span id="totalDisplay">Rp 0</span>
+            </div>
+            
+            <button id="payBtn" class="btn-primary" style="width:100%; margin-top:2rem;" disabled>BAYAR SEKARANG</button>
+        </div>
+    </div>
+
+    <script>
+        // Utilities
+        const formatIDR = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+
+        // State
+        let cart = JSON.parse(localStorage.getItem('bronze_cart')) || [];
+        let subtotal = 0;
+        let totalWeight = 0;
+        let selectedShippingCost = 0;
+
+        // Init Check
+        if(cart.length === 0) {
+            alert('Keranjang belanja kosong!');
+            window.location.href = 'index.html';
+        }
+
+        const token = localStorage.getItem('bronze_token');
+        if(!token) {
+            alert('Silakan login terlebih dahulu untuk checkout.');
+            window.location.href = 'login.html';
+        }
+
+        // Render Cart
+        const renderOrderSummary = () => {
+            const container = document.getElementById('orderItems');
+            subtotal = 0;
+            totalWeight = 0;
+            container.innerHTML = '';
+            
+            cart.forEach(item => {
+                subtotal += (item.price * item.quantity);
+                totalWeight += (item.weight_grams * item.quantity);
+                
+                const div = document.createElement('div');
+                div.className = 'summary-item';
+                div.innerHTML = `
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500;">${item.name}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${item.quantity} x ${formatIDR(item.price)}</div>
+                    </div>
+                    <div style="font-weight: 600;">${formatIDR(item.price * item.quantity)}</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            updateTotal();
+        };
+
+        const updateTotal = () => {
+            document.getElementById('subtotalDisplay').textContent = formatIDR(subtotal);
+            document.getElementById('shippingCostDisplay').textContent = formatIDR(selectedShippingCost);
+            document.getElementById('totalDisplay').textContent = formatIDR(subtotal + selectedShippingCost);
+            
+            const payBtn = document.getElementById('payBtn');
+            if(selectedShippingCost > 0) {
+                payBtn.disabled = false;
+            } else {
+                payBtn.disabled = true;
+            }
+        };
+
+        // Shipping API Calls
+        const loadProvinces = async () => {
+            try {
+                const res = await fetch('/api/shipping/provinces');
+                const data = await res.json();
+                const select = document.getElementById('provinceSelect');
+                data.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.province_id;
+                    opt.textContent = p.province;
+                    select.appendChild(opt);
+                });
+            } catch(e) { console.error('Error loading provinces', e); }
+        };
+
+        document.getElementById('provinceSelect').addEventListener('change', async (e) => {
+            const provId = e.target.value;
+            const citySelect = document.getElementById('citySelect');
+            citySelect.innerHTML = '<option value="">Pilih Kota</option>';
+            
+            if(!provId) {
+                citySelect.disabled = true;
+                return;
+            }
+            
+            citySelect.disabled = false;
+            try {
+                const res = await fetch(`/api/shipping/cities/${provId}`);
+                const data = await res.json();
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.city_id;
+                    opt.textContent = `${c.type} ${c.city_name}`;
+                    citySelect.appendChild(opt);
+                });
+            } catch(e) { console.error('Error loading cities', e); }
+        });
+
+        document.getElementById('calculateShippingBtn').addEventListener('click', async () => {
+            const cityId = document.getElementById('citySelect').value;
+            const courier = document.getElementById('courierSelect').value;
+            
+            if(!cityId) return alert('Silakan pilih kota tujuan');
+            
+            try {
+                const res = await fetch('/api/shipping/cost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ destination: cityId, weight: totalWeight || 1000, courier })
+                });
+                const data = await res.json();
+                
+                const servicesContainer = document.getElementById('servicesContainer');
+                servicesContainer.innerHTML = '';
+                
+                if(data.length > 0 && data[0].costs.length > 0) {
+                    data[0].costs.forEach((service, index) => {
+                        const costValue = service.cost[0].value;
+                        const etd = service.cost[0].etd;
+                        
+                        const div = document.createElement('div');
+                        div.style.padding = '1rem';
+                        div.style.border = '1px solid rgba(255,255,255,0.1)';
+                        div.style.marginBottom = '0.5rem';
+                        div.style.borderRadius = '4px';
+                        div.style.cursor = 'pointer';
+                        
+                        div.innerHTML = `
+                            <input type="radio" name="shippingService" id="srv_${index}" value="${costValue}">
+                            <label for="srv_${index}" style="cursor:pointer; font-weight:bold;">${service.service} - ${formatIDR(costValue)}</label>
+                            <div style="font-size:0.85rem; color:var(--text-secondary); margin-left: 1.5rem;">Estimasi: ${etd} hari</div>
+                        `;
+                        
+                        div.addEventListener('click', () => {
+                            document.getElementById(`srv_${index}`).checked = true;
+                            selectedShippingCost = costValue;
+                            updateTotal();
+                        });
+                        
+                        servicesContainer.appendChild(div);
+                    });
+                    document.getElementById('shippingOptions').style.display = 'block';
+                } else {
+                    servicesContainer.innerHTML = '<p>Layanan tidak tersedia untuk rute ini.</p>';
+                    document.getElementById('shippingOptions').style.display = 'block';
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Gagal menghitung ongkir');
+            }
+        });
+
+        // Payment
+        document.getElementById('payBtn').addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        items: cart,
+                        shippingCost: selectedShippingCost,
+                        destination: document.getElementById('citySelect').value
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if(data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                if(data.mock) {
+                    alert('Simulasi Pembayaran Berhasil! (Midtrans Keys belum diset)');
+                    localStorage.removeItem('bronze_cart');
+                    window.location.href = 'orders.html';
+                    return;
+                }
+
+                // Snap Midtrans
+                window.snap.pay(data.token, {
+                    onSuccess: function(result){
+                        localStorage.removeItem('bronze_cart');
+                        window.location.href = 'orders.html';
+                    },
+                    onPending: function(result){
+                        localStorage.removeItem('bronze_cart');
+                        window.location.href = 'orders.html';
+                    },
+                    onError: function(result){
+                        alert('Pembayaran gagal!');
+                    },
+                    onClose: function(){
+                        alert('Anda menutup popup tanpa menyelesaikan pembayaran');
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan sistem');
+            }
+        });
+
+        // Init Page
+        renderOrderSummary();
+        loadProvinces();
+
+    </script>
+</body>
+</html>

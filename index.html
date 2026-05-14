@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRONZE | Premium Outfit</title>
+    <meta name="description" content="BRONZE Outfit - Exclusive streetwear and premium formal collection.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="logo.png" type="image/png">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <h1 class="bronze-text blink">BRONZE</h1>
+    </div>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#home" class="nav-brand">
+            <img src="logo.png" alt="BRONZE Logo" class="nav-logo">
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#collection" data-category="All">Semua</a></li>
+            <li><a href="#collection" data-category="Baju">Baju</a></li>
+            <li><a href="#collection" data-category="Celana">Celana</a></li>
+            <li><a href="#collection" data-category="Dompet">Dompet</a></li>
+            <li><a href="#collection" data-category="Topi">Topi</a></li>
+            <li><a href="#collection" data-category="Lainnya">Lainnya</a></li>
+        </ul>
+        <div class="nav-actions">
+            <div class="user-menu" id="userMenuContainer" style="display:inline-block; margin-right: 1rem;">
+                <a href="login.html" class="icon-btn" id="loginBtn" title="Login">
+                    <i class="ph ph-user"></i>
+                </a>
+            </div>
+            <button class="icon-btn cart-btn">
+                <i class="ph ph-shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </button>
+            <button class="icon-btn menu-btn" id="menuBtn">
+                <i class="ph ph-list"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero fade-in-section is-visible">
+        <!-- Video Background -->
+        <video autoplay loop muted playsinline class="hero-video">
+            <source src="https://cdn.pixabay.com/video/2016/09/13/5053-182390293_large.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="reveal-text">BRONZE APPAREL</h1>
+            <p class="reveal-text delay-1">LOKAL PRIDE. STREETWEAR ESSENTIALS.</p>
+            <a href="#collection" class="btn-primary reveal-text delay-2">SHOP NOW</a>
+        </div>
+    </header>
+
+    <!-- Marquee Banner -->
+    <div class="marquee">
+        <div class="marquee-content" style="font-size: 1.5rem;">
+            <span>STREETWEAR CULTURE</span> • <span>LOKAL PRIDE</span> • <span>OVERSIZED FIT</span> • <span>LIMITED DROP</span> • <span>URBAN LIFESTYLE</span> • 
+            <span>STREETWEAR CULTURE</span> • <span>LOKAL PRIDE</span> • <span>OVERSIZED FIT</span> • <span>LIMITED DROP</span> • <span>URBAN LIFESTYLE</span> • 
+        </div>
+    </div>
+
+    <!-- Brand Story Section -->
+    <section id="about" class="brand-story fade-in-section">
+        <div class="story-content">
+            <h2 class="bronze-text">BUILT FOR THE STREETS</h2>
+            <p>Berawal dari jalanan, BRONZE dibuat buat lo yang berani beda. Kami nge-push batasan dengan desain grafik raw dan material heavy-duty cotton buat nemenin kultur street lo sehari-hari. No rules, just raw style.</p>
+        </div>
+        <div class="story-image">
+            <img src="https://images.unsplash.com/photo-1510255375533-5b8cb46c5a61?q=80&w=2000&auto=format&fit=crop" alt="Streetwear Culture">
+        </div>
+    </section>
+
+    <!-- Collection Section -->
+    <section id="collection" class="collection">
+        <div class="section-header">
+            <h2>LATEST ARRIVALS</h2>
+            <div class="divider"></div>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <input type="text" id="searchInput" placeholder="Cari produk..." style="padding: 0.75rem 1rem; width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white;">
+        </div>
+        
+        <div class="product-grid" id="productGrid">
+            <!-- Products will be injected via JS -->
+        </div>
+    </section>
+
+    <!-- Featured Collections Slider -->
+    <section class="featured-slider fade-in-section">
+        <div class="section-header">
+            <h2>NEW DROP ALERT</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="slider-container">
+            <button class="slider-btn prev-btn"><i class="ph ph-caret-left"></i></button>
+            <div class="slider-wrapper" id="sliderWrapper">
+                <!-- Slider items injected via JS -->
+            </div>
+            <button class="slider-btn next-btn"><i class="ph ph-caret-right"></i></button>
+        </div>
+    </section>
+
+    <!-- Lookbook Section -->
+    <section id="lookbook" class="lookbook fade-in-section">
+        <div class="section-header">
+            <h2>LOOKBOOK</h2>
+            <div class="divider"></div>
+            <p style="text-align:center; color:var(--text-secondary); margin-top:1rem;">Inspirasi gaya dari pelanggan VIP kami.</p>
+        </div>
+        <div class="lookbook-grid">
+            <div class="lookbook-item">
+                <img src="https://images.unsplash.com/photo-1549062572-544a64fb0c56?q=80&w=1000&auto=format&fit=crop" alt="Look 1">
+                <div class="lookbook-overlay"><span>OOTD Kasual</span></div>
+            </div>
+            <div class="lookbook-item tall">
+                <img src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?q=80&w=1000&auto=format&fit=crop" alt="Look 2">
+                <div class="lookbook-overlay"><span>Gaya Formal</span></div>
+            </div>
+            <div class="lookbook-item">
+                <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=1000&auto=format&fit=crop" alt="Look 3">
+                <div class="lookbook-overlay"><span>Streetwear</span></div>
+            </div>
+            <div class="lookbook-item wide">
+                <img src="https://images.unsplash.com/photo-1559582798-678dfc71ce5e?q=80&w=1000&auto=format&fit=crop" alt="Look 4">
+                <div class="lookbook-overlay"><span>Midnight Blue</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3>
+            <button class="close-btn" id="closeCart"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be here -->
+        </div>
+        <div class="cart-footer">
+            <!-- Total price is shown dynamically now -->
+            <button class="btn-primary btn-checkout" onclick="window.location.href='checkout.html'">Checkout Sekarang</button>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Product Detail Modal -->
+    <div class="size-modal-overlay" id="detailModal">
+        <div class="size-modal" style="max-width: 600px;">
+            <button class="close-modal" id="closeDetailModal"><i class="ph ph-x"></i></button>
+            <div id="detailContent">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp -->
+    <a href="https://wa.me/6281234567890" class="floating-wa" target="_blank">
+        <i class="ph ph-whatsapp-logo"></i>
+    </a>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="logo.png" alt="BRONZE Logo" class="footer-logo">
+            </div>
+            <p>&copy; 2026 BRONZE Outfit. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
